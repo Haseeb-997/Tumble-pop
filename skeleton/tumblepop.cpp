@@ -1,5 +1,3 @@
-// Muhammad Haseeb
-// Muhammad Ahsaan Khurshid
 #include <iostream>
 #include <fstream>
 #include <cmath>
@@ -13,48 +11,138 @@ using namespace std;
 int screen_x = 1152;
 int screen_y = 896;
 
-// player collision with enemies and  resetting
-void enemies_collision(bool is_player_facing_right, float &player_x, float &player_y, float enemy_x, float enemy_y, int speed)
+// displaying the backgroung image and the blocks
+void display_level(RenderWindow &window, char **lvl, Texture &bgTex, Sprite &bgSprite, Texture &blockTexture, Sprite &blockSprite, const int height, const int width, const int cell_size)
 {
-	int tem_player_x;
-	if (is_player_facing_right && speed < 0)
-	{
-		tem_player_x = player_x;
-	}
-	else
-		tem_player_x = player_x + 32;
+	window.draw(bgSprite);
 
-	float x_dis = abs(tem_player_x - enemy_x);
-	float y_dis = abs(player_y - enemy_y);
-
-	// now checking the collision
-	if (x_dis <= 40 && y_dis <= 40)
+	for (int i = 0; i < height; i += 1)
 	{
-		player_x = 66;
-		player_y = 762;
+		for (int j = 0; j < width; j += 1)
+		{
+
+			if (lvl[i][j] == '#')
+			{
+				blockSprite.setPosition(j * cell_size, i * cell_size);
+				window.draw(blockSprite);
+			}
+		}
 	}
 }
 
-// ghost movement function
-// void ghost_move(float &ghost_x, float &g_speed, float &ghost_y, Sprite &ghost_Sprite, int low, int high)
-// {
-// 	ghost_x += g_speed;
-// 	if (ghost_x < low)
-// 	{
-// 		g_speed = 2;
-// 		ghost_Sprite.setScale(-2, 2);
-// 		ghost_x += 50;
-// 	}
-// 	if (ghost_x > high)
-// 	{
-// 		g_speed = -2;
-// 		ghost_Sprite.setScale(2, 2);
-// 		ghost_x -= 50;
-// 	}
-// 	ghost_Sprite.setPosition(ghost_x, ghost_y);
-// }
+// displaying the tumble pop font window
+void display_tumblepop_image(RenderWindow &window, Sprite &Title_Sprite, bool &isPlayerSelection, Event ev)
+{
+	window.clear();
+	window.draw(Title_Sprite);
+	window.display();
 
-// enemy movement
+	if (ev.type == Event::KeyPressed && Keyboard::isKeyPressed(Keyboard::Enter))
+		isPlayerSelection = true; // if true, then move to player selection screen
+}
+
+// displaying the selection window
+void display_selection_screen(RenderWindow &window, Sprite &g_Select_Sprite, Sprite &y_Select_Sprite, bool &isPlayerSelection, Event ev, bool &player_Green, bool &player_Selected, Text selectText, Sprite controls_Sprite[], Text controlText)
+{
+	g_Select_Sprite.setPosition(300, 400);
+	y_Select_Sprite.setPosition(700, 400);
+	g_Select_Sprite.setScale(4, 4);
+	y_Select_Sprite.setScale(4, 4);
+
+	selectText.setString("SELECT YOUR PLAYER");
+	selectText.setCharacterSize(40);
+	selectText.setFillColor(Color::White);
+	selectText.setPosition(240, 200);
+
+	controlText.setString("CONTROLS");
+	controlText.setCharacterSize(30);
+	controlText.setFillColor(Color::White);
+	controlText.setPosition(70, 761);
+
+	if (Keyboard::isKeyPressed(Keyboard::Right))
+		player_Green = false; // Yellow player
+	if (Keyboard::isKeyPressed(Keyboard::Left))
+		player_Green = true; // Green player
+	if (player_Green)
+		g_Select_Sprite.setScale(5, 5);
+	else
+		y_Select_Sprite.setScale(5, 5);
+	if (ev.type == Event::KeyPressed && Keyboard::isKeyPressed(Keyboard::Enter))
+		player_Selected = true;
+
+	window.clear();
+	window.draw(g_Select_Sprite);
+	window.draw(y_Select_Sprite);
+	window.draw(selectText);
+	window.draw(controlText);
+	for (int i = 0; i < 3; i++)
+	{
+		controls_Sprite[i].setScale(1.5, 1.5);
+		if (i == 0)
+		{
+			controls_Sprite[i].setPosition(347, 718);
+			window.draw(controls_Sprite[i]);
+		}
+		else if (i == 1)
+		{
+			controls_Sprite[i].setPosition(637, 718);
+			window.draw(controls_Sprite[i]);
+		}
+		else if (i == 2)
+		{
+			controls_Sprite[i].setPosition(877, 700);
+			window.draw(controls_Sprite[i]);
+		}
+	}
+	window.display();
+}
+
+// displaying health image
+void display_health_image(RenderWindow &window, Sprite p1_Sprite, Sprite p2_Sprite, bool player_Green)
+{
+	if (player_Green)
+	{
+		p1_Sprite.setPosition(126, 70);
+		p1_Sprite.setScale(3, 3);
+		window.draw(p1_Sprite);
+	}
+	else
+	{
+		p2_Sprite.setPosition(126, 70);
+		p2_Sprite.setScale(3, 3);
+		window.draw(p2_Sprite);
+	}
+}
+
+// movement of the player
+void move_player(char **lvl, float &offset_x, float &player_x, float speed, bool player_Green, float &player_y, int PlayerHeight, const int cell_size, int PlayerWidth, bool is_player_facing_right)
+{
+	char mid, bottom;
+	if (is_player_facing_right)
+	{
+		offset_x = player_x;
+		offset_x += speed * (player_Green ? 1.5 : 1);
+		mid = lvl[(int)(player_y + PlayerHeight / 2) / cell_size][(int)(offset_x + PlayerWidth) / cell_size];
+		bottom = lvl[(int)(player_y + PlayerHeight) / cell_size][(int)(offset_x + PlayerWidth) / cell_size];
+		if (!(mid == '#' || bottom == '#'))
+		{
+			player_x = offset_x;
+		}
+	}
+	else
+	{
+		offset_x = player_x;
+		offset_x -= speed * (player_Green ? 1.5 : 1);
+		mid = lvl[(int)(player_y + PlayerHeight / 2) / cell_size][(int)(offset_x) / cell_size];
+		bottom = lvl[(int)(player_y + PlayerHeight) / cell_size][(int)(offset_x) / cell_size];
+		if (!(mid == '#' || bottom == '#'))
+		{
+			player_x = offset_x;
+		}
+	}
+}
+
+// movement of the enemies
 void enemy_move(float enemy_x[], float enemy_speed[], float enemy_y[], Sprite enemy_Sprite[], float low[], float high[], int total_skeletons)
 {
 	for (int i = 0; i < total_skeletons; i++)
@@ -76,24 +164,20 @@ void enemy_move(float enemy_x[], float enemy_speed[], float enemy_y[], Sprite en
 	}
 }
 
-void display_level(RenderWindow &window, char **lvl, Texture &bgTex, Sprite &bgSprite, Texture &blockTexture, Sprite &blockSprite, const int height, const int width, const int cell_size)
+// walking animation of the player
+void player_animation(float &p_animation_timer, float p_animation_speed, int &p_frame_index)
 {
-	window.draw(bgSprite);
-
-	for (int i = 0; i < height; i += 1)
+	p_animation_timer += p_animation_speed;
+	if (p_animation_timer >= 1.0f)
 	{
-		for (int j = 0; j < width; j += 1)
-		{
-
-			if (lvl[i][j] == '#')
-			{
-				blockSprite.setPosition(j * cell_size, i * cell_size);
-				window.draw(blockSprite);
-			}
-		}
+		p_animation_timer = 0.0f;
+		p_frame_index++;
+		if (p_frame_index > 4)
+			p_frame_index = 0;
 	}
 }
 
+// applying Grevity
 void player_gravity(char **lvl, float &offset_x, float &offset_y, float &velocityY, bool &onGround, const float &gravity, float &terminal_Velocity, float &player_x, float &player_y, const int cell_size, int &Pheight, int &Pwidth, bool &ignoring_tiles)
 {
 
@@ -171,45 +255,7 @@ void player_gravity(char **lvl, float &offset_x, float &offset_y, float &velocit
 	}
 }
 
-void move_player(char **lvl, float &offset_x, float &player_x, float speed, bool player_Green, float &player_y, int PlayerHeight, const int cell_size, int PlayerWidth, bool is_player_facing_right)
-{
-	char mid, bottom;
-	if (is_player_facing_right)
-	{
-		offset_x = player_x;
-		offset_x += speed * (player_Green ? 1.5 : 1);
-		mid = lvl[(int)(player_y + PlayerHeight / 2) / cell_size][(int)(offset_x + PlayerWidth) / cell_size];
-		bottom = lvl[(int)(player_y + PlayerHeight) / cell_size][(int)(offset_x + PlayerWidth) / cell_size];
-		if (!(mid == '#' || bottom == '#'))
-		{
-			player_x = offset_x;
-		}
-	}
-	else
-	{
-		offset_x = player_x;
-		offset_x -= speed * (player_Green ? 1.5 : 1);
-		mid = lvl[(int)(player_y + PlayerHeight / 2) / cell_size][(int)(offset_x) / cell_size];
-		bottom = lvl[(int)(player_y + PlayerHeight) / cell_size][(int)(offset_x) / cell_size];
-		if (!(mid == '#' || bottom == '#'))
-		{
-			player_x = offset_x;
-		}
-	}
-}
-
-void player_animation(float &p_animation_timer, float p_animation_speed, int &p_frame_index)
-{
-	p_animation_timer += p_animation_speed;
-	if (p_animation_timer >= 1.0f)
-	{
-		p_animation_timer = 0.0f;
-		p_frame_index++;
-		if (p_frame_index > 4)
-			p_frame_index = 0;
-	}
-}
-
+// displaying player
 void display_player(RenderWindow &window, Texture &SpriteSheet, bool player_Green, bool is_player_facing_right, Sprite GreenplayerFrame[], Sprite YellowplayerFrame[], int p_frame_index, float player_x, float player_y, int PlayerWidth)
 {
 	if (player_Green)
@@ -226,6 +272,7 @@ void display_player(RenderWindow &window, Texture &SpriteSheet, bool player_Gree
 	}
 }
 
+// displaying fire
 void display_fire(RenderWindow &window, Texture SpriteSheet, bool is_player_facing_right, float &player_x, float &player_y, int PlayerWidth, Sprite fire_Sprite, int FireWidth, float &fire_x, float &fire_y)
 {
 	fire_x = is_player_facing_right ? player_x + PlayerWidth + FireWidth : player_x - FireWidth;
@@ -235,10 +282,62 @@ void display_fire(RenderWindow &window, Texture SpriteSheet, bool is_player_faci
 	window.draw(fire_Sprite);
 }
 
-// collision of fire and enemies
+// is fire hit the enemy
 bool isColliding(float f_x, float f_y, float f_w, float f_h, float e_x, float e_y, float e_w, float e_h)
 {
 	return !(f_x + f_w < e_x || f_x > e_x + e_w || f_y + f_h < e_y || f_y > e_y + e_h);
+}
+
+// player collision with enemies and resetting
+void enemies_collision(bool is_player_facing_right, float &player_x, float &player_y, float enemy_x, float enemy_y, int speed)
+{
+	int tem_player_x;
+	if (is_player_facing_right && speed < 0)
+	{
+		tem_player_x = player_x;
+	}
+	else
+		tem_player_x = player_x + 32;
+
+	float x_dis = abs(tem_player_x - enemy_x);
+	float y_dis = abs(player_y - enemy_y);
+
+	// now checking the collision
+	if (x_dis <= 40 && y_dis <= 40)
+	{
+		player_x = 66;
+		player_y = 762;
+	}
+}
+
+// ghost movement function
+// void ghost_move(float &ghost_x, float &g_speed, float &ghost_y, Sprite &ghost_Sprite, int low, int high)
+// {
+// 	ghost_x += g_speed;
+// 	if (ghost_x < low)
+// 	{
+// 		g_speed = 2;
+// 		ghost_Sprite.setScale(-2, 2);
+// 		ghost_x += 50;
+// 	}
+// 	if (ghost_x > high)
+// 	{
+// 		g_speed = -2;
+// 		ghost_Sprite.setScale(2, 2);
+// 		ghost_x -= 50;
+// 	}
+// 	ghost_Sprite.setPosition(ghost_x, ghost_y);
+// }
+
+// displaying game over
+void display_gameover(RenderWindow &window, Text &gameoverText)
+{
+	window.clear();
+	gameoverText.setString("GAME OVER");
+	gameoverText.setCharacterSize(130);
+	gameoverText.setFillColor(Color::White);
+	gameoverText.setPosition(0, 448);
+	window.draw(gameoverText);
 }
 
 int main()
@@ -302,7 +401,7 @@ int main()
 	// y coordinates of ghosts
 	float ghost_y[total_ghosts] = {512, 256, 256, 512};
 	// speed of ghosts
-	float ghost_speed[total_ghosts] = {2, 2, 2, 2};  
+	float ghost_speed[total_ghosts] = {2, 2, 2, 2};
 	// left and right limits of ghosts
 	float ghost_left_x[total_ghosts] = {64, 64, 840, 840};
 	float ghost_right_x[total_ghosts] = {320, 320, 1090, 1090};
@@ -315,6 +414,7 @@ int main()
 		ghost_sprite[i].setScale(-2, 2);
 		ghost_sprite[i].setPosition(ghost_x[i], ghost_y[i]);
 	}
+	bool is_g_alive[total_ghosts] = {1, 1, 1, 1};
 
 	// -----Skeletonsheet loading-----
 	Texture skeletonSheet;
@@ -327,9 +427,9 @@ int main()
 	// y coordinates of skeletons
 	float skeleton_y[total_skeletons] = {120, 120, 370, 370};
 
-	//float skeleton_timer[total_skeletons] = {0, 20, 40, 10};
+	// float skeleton_timer[total_skeletons] = {0, 20, 40, 10};
 
-	//float skeleton_velocity[total_skeletons] = {0, 0, 0, 0};
+	// float skeleton_velocity[total_skeletons] = {0, 0, 0, 0};
 	float skeleton_speed[total_skeletons] = {2, -2, 2, -2};
 	// left and right limits of skeletons
 	float skeleton_left_x[total_skeletons] = {210, 670, 210, 750};
@@ -343,7 +443,6 @@ int main()
 		skeleton_sprite[i].setScale(2, 2);
 		skeleton_sprite[i].setPosition(skeleton_x[i], skeleton_y[i]);
 	}
-	bool is_g_alive[total_ghosts] = {1, 1, 1, 1};
 	bool is_s_alive[total_skeletons] = {1, 1, 1, 1};
 
 	// ------Loading Skeleton------
@@ -372,14 +471,43 @@ int main()
 	// int skeleton_height = 78;
 	// bool is_skeleton_facing_right = true;
 
-	// -----The title font-----
-	Texture font_Texture;
-	Sprite font_Sprite;
+	// -----The title image-----
+	Texture Title_Texture;
+	Sprite Title_Sprite;
 
-	font_Texture.loadFromFile("Data/font.png");
-	font_Sprite.setTexture(font_Texture);
-	font_Sprite.setPosition(176, 364);
-	font_Sprite.setScale(2, 2);
+	Title_Texture.loadFromFile("Data/Title.png");
+	Title_Sprite.setTexture(Title_Texture);
+	Title_Sprite.setPosition(176, 364);
+	Title_Sprite.setScale(2, 2);
+
+	// -----The controls image-----
+	Texture controls_Texture;
+	controls_Texture.loadFromFile("Data/controls.png");
+
+	Sprite controls_Sprite[3];
+	for (int i = 0; i < 3; i++)
+	{
+		controls_Sprite[i].setTexture(controls_Texture);
+		if (i == 0)
+			controls_Sprite[i].setTextureRect(IntRect(18, 12, 163, 83));
+		else if (i == 1)
+			controls_Sprite[i].setTextureRect(IntRect(18, 94, 163, 83));
+		else if (i == 2)
+			controls_Sprite[i].setTextureRect(IntRect(182, 47, 163, 95));
+	}
+
+	// -----loading font-----
+	Font gamefont;
+	gamefont.loadFromFile("Data/font.ttf");
+	// setting text appers in selection
+	Text selectText;
+	selectText.setFont(gamefont);
+	// setting text appers in controls
+	Text controlText;
+	controlText.setFont(gamefont);
+	// setting text appers in gameover
+	Text gameoverText;
+	gameoverText.setFont(gamefont);
 
 	// ------Loading Green player------
 	Sprite p1_Sprite[6];
@@ -434,6 +562,7 @@ int main()
 	bool player_Selected = false;
 	// true -> green , false -> yellow
 	bool player_Green = false;
+	bool is_game_over = false;
 
 	// -----Music initialisation-----
 	Music lvlMusic;
@@ -504,6 +633,7 @@ int main()
 	for (int i = 0; i < height; i++)
 		for (int j = 0; j < width; j++)
 			lvl[i][j] = '.';
+
 	// -----Adding level 1 blocks-----
 	for (int i = 0; i < width; i++)
 		lvl[0][i] = '#'; // 0th row
@@ -557,204 +687,178 @@ int main()
 			{
 			}
 		}
-		// First show the tumblepop image
-		if (!isPlayerSelection)
+		if (!is_game_over)
 		{
-			window.clear();
-			window.draw(font_Sprite);
-			window.display();
-
-			if (ev.type == Event::KeyPressed && Keyboard::isKeyPressed(Keyboard::Enter))
-				isPlayerSelection = true; // if true, then move to player selection screen
-			continue;
-		}
-		// player selection screen
-		if (isPlayerSelection && !player_Selected)
-		{
-			g_Select_Sprite.setPosition(300, 400);
-			y_Select_Sprite.setPosition(700, 400);
-			g_Select_Sprite.setScale(4, 4);
-			y_Select_Sprite.setScale(4, 4);
-
-			if (Keyboard::isKeyPressed(Keyboard::Right))
-				player_Green = false; // Yellow player
-			if (Keyboard::isKeyPressed(Keyboard::Left))
-				player_Green = true; // Green player
-			if (player_Green)
-				g_Select_Sprite.setScale(5, 5);
-			else
-				y_Select_Sprite.setScale(5, 5);
-			if (ev.type == Event::KeyPressed && Keyboard::isKeyPressed(Keyboard::Enter))
-				player_Selected = true;
-
-			window.clear();
-			window.draw(g_Select_Sprite);
-			window.draw(y_Select_Sprite);
-			window.display();
-
-			continue;
-		}
-		// presing escape to close
-		if (Keyboard::isKeyPressed(Keyboard::Escape))
-		{
-			window.close();
-		}
-		// Movement of the player
-		if (Keyboard::isKeyPressed(Keyboard::Left))
-		{
-			is_player_facing_right = false;
-			move_player(lvl, offset_x, player_x, speed, player_Green, player_y, PlayerHeight, cell_size, PlayerWidth, is_player_facing_right);
-		}
-		if (Keyboard::isKeyPressed(Keyboard::Right))
-		{
-			is_player_facing_right = true;
-			move_player(lvl, offset_x, player_x, speed, player_Green, player_y, PlayerHeight, cell_size, PlayerWidth, is_player_facing_right);
-		}
-		if (Keyboard::isKeyPressed(Keyboard::Up) && onGround)
-		{
-			velocityY = jumpStrength;
-			onGround = false;
-		}
-		if ((int)(player_y + PlayerHeight) / cell_size >= 12)
-		{
-			reach_last_ground = true;
-		}
-		else
-			reach_last_ground = false;
-		// checking if player is in the blocked region
-		int col = (int)(player_x + PlayerWidth / 2) / cell_size;
-		int row = (int)(player_y + PlayerHeight / 2) / cell_size;
-		if (!((row == 2 || row == 4) && col >= 7 && col <= 10))
-		{
-			// down movement
-			if (Keyboard::isKeyPressed(Keyboard::Down) && onGround && !reach_last_ground)
+			// First show the tumblepop image
+			if (!isPlayerSelection)
 			{
-				velocityY = 10;
-				ignoring_tiles = true;
+				display_tumblepop_image(window, Title_Sprite, isPlayerSelection, ev);
+				continue;
 			}
-		}
-
-		// Animation of the player
-		if (Keyboard::isKeyPressed(Keyboard::Right) || Keyboard::isKeyPressed(Keyboard::Left))
-		{
-			player_animation(p_animation_timer, p_animation_speed, p_frame_index);
-		}
-
-		// enemy skeleton
-		enemy_move(skeleton_x, skeleton_speed, skeleton_y, skeleton_sprite, skeleton_left_x, skeleton_right_x, total_skeletons);
-		// ghost thigs calling for  different functions
-		enemy_move(ghost_x, ghost_speed, ghost_y, ghost_sprite, ghost_left_x, ghost_right_x, total_ghosts);
-
-		for (int i = 0; i < total_ghosts; i++)
-		{
-			// ghost_move(ghost_x[i],ghost_speed[i],ghost_y[i],ghost_sprite[i],ghost_left_x,ghost_right_x);
-			if (is_g_alive[i])
-				enemies_collision(is_player_facing_right, player_x, player_y, ghost_x[i], ghost_y[i], ghost_speed[i]);
-		}
-
-		// skeleton collision function call
-		for (int i = 0; i < total_skeletons; i++)
-		{
-			if (is_s_alive[i])
-				enemies_collision(is_player_facing_right, player_x, player_y, skeleton_x[i], skeleton_y[i], skeleton_speed[i]);
-		}
-
-		player_gravity(lvl, offset_x, offset_y, velocityY, onGround, gravity, terminal_Velocity, player_x, player_y, cell_size, PlayerHeight, PlayerWidth, ignoring_tiles);
-
-		window.clear();
-		display_level(window, lvl, bgTex, bgSprite, blockTexture, blockSprite, height, width, cell_size);
-
-		// for health display
-		if (player_Green)
-		{
-			p1_Sprite[5].setPosition(126, 70);
-			p1_Sprite[5].setScale(4, 4);
-			window.draw(p1_Sprite[5]);
-		}
-		else
-		{
-			p2_Sprite[5].setPosition(126, 70);
-			p2_Sprite[5].setScale(4, 4);
-			window.draw(p2_Sprite[5]);
-		}
-
-		display_player(window, SpriteSheet, player_Green, is_player_facing_right, GreenplayerFrame, YellowplayerFrame, p_frame_index, player_x, player_y, PlayerWidth);
-		if (Keyboard::isKeyPressed(Keyboard::Space))
-			display_fire(window, SpriteSheet, is_player_facing_right, player_x, player_y, PlayerWidth, fire_Sprite, FireWidth, fire_x, fire_y);
-
-		// fire and enemies collision
-		if (Keyboard::isKeyPressed(Keyboard::Space))
-		{
-			for (int i = 0; i < total_skeletons; i++)
+			// player selection screen
+			if (isPlayerSelection && !player_Selected)
 			{
-				bool hit = isColliding(fire_x, fire_y, FireWidth, FireHeight, skeleton_x[i], skeleton_y[i], 64, 76);
-				if (hit)
+				display_selection_screen(window, g_Select_Sprite, y_Select_Sprite, isPlayerSelection, ev, player_Green, player_Selected, selectText, controls_Sprite, controlText);
+				continue;
+			}
+			// presing escape to close
+			if (Keyboard::isKeyPressed(Keyboard::Escape))
+			{
+				window.close();
+			}
+			// -----Movement of the player-----
+			if (Keyboard::isKeyPressed(Keyboard::Left))
+			{
+				is_player_facing_right = false;
+				move_player(lvl, offset_x, player_x, speed, player_Green, player_y, PlayerHeight, cell_size, PlayerWidth, is_player_facing_right);
+			}
+			if (Keyboard::isKeyPressed(Keyboard::Right))
+			{
+				is_player_facing_right = true;
+				move_player(lvl, offset_x, player_x, speed, player_Green, player_y, PlayerHeight, cell_size, PlayerWidth, is_player_facing_right);
+			}
+			if (Keyboard::isKeyPressed(Keyboard::Up) && onGround)
+			{
+				velocityY = jumpStrength;
+				onGround = false;
+			}
+			// checking weather the player is on Last Platform
+			if ((int)(player_y + PlayerHeight) / cell_size >= 12)
+			{
+				reach_last_ground = true;
+			}
+			else
+				reach_last_ground = false;
+			// checking if player is in the blocked region (where down movement doesn't ocuur)
+			int col = (int)(player_x + PlayerWidth / 2) / cell_size;
+			int row = (int)(player_y + PlayerHeight / 2) / cell_size;
+			if (!((row == 2 || row == 4) && col >= 7 && col <= 10))
+			{
+				// down movement
+				if (Keyboard::isKeyPressed(Keyboard::Down) && onGround && !reach_last_ground)
 				{
-					is_s_alive[i] = 0;
-					// skeleton_speed[i] = 0; // stop movement
+					velocityY = 10;
+					ignoring_tiles = true;
 				}
 			}
+			// Animation of the player
+			if (Keyboard::isKeyPressed(Keyboard::Right) || Keyboard::isKeyPressed(Keyboard::Left))
+			{
+				player_animation(p_animation_timer, p_animation_speed, p_frame_index);
+			}
+			// enemy skeleton move
+			enemy_move(skeleton_x, skeleton_speed, skeleton_y, skeleton_sprite, skeleton_left_x, skeleton_right_x, total_skeletons);
+			// ghost move calling for  different functions
+			enemy_move(ghost_x, ghost_speed, ghost_y, ghost_sprite, ghost_left_x, ghost_right_x, total_ghosts);
+			for (int i = 0; i < total_ghosts; i++)
+			{
+				// ghost_move(ghost_x[i],ghost_speed[i],ghost_y[i],ghost_sprite[i],ghost_left_x,ghost_right_x);
+				// is the specific ghost alive?
+				if (is_g_alive[i])
+					enemies_collision(is_player_facing_right, player_x, player_y, ghost_x[i], ghost_y[i], ghost_speed[i]);
+			}
+			// skeleton collision function call
+			for (int i = 0; i < total_skeletons; i++)
+			{
+				// is the specific skeleton alive?
+				if (is_s_alive[i])
+					enemies_collision(is_player_facing_right, player_x, player_y, skeleton_x[i], skeleton_y[i], skeleton_speed[i]);
+			}
+			// gravity of the player
+			player_gravity(lvl, offset_x, offset_y, velocityY, onGround, gravity, terminal_Velocity, player_x, player_y, cell_size, PlayerHeight, PlayerWidth, ignoring_tiles);
+
+			window.clear();
+			display_level(window, lvl, bgTex, bgSprite, blockTexture, blockSprite, height, width, cell_size);
+			// for health display
+			display_health_image(window, p1_Sprite[5], p2_Sprite[5], player_Green);
+
+			display_player(window, SpriteSheet, player_Green, is_player_facing_right, GreenplayerFrame, YellowplayerFrame, p_frame_index, player_x, player_y, PlayerWidth);
+
+			if (Keyboard::isKeyPressed(Keyboard::Space))
+				display_fire(window, SpriteSheet, is_player_facing_right, player_x, player_y, PlayerWidth, fire_Sprite, FireWidth, fire_x, fire_y);
+
+			// fire and enemies collision
+			if (Keyboard::isKeyPressed(Keyboard::Space))
+			{
+				for (int i = 0; i < total_skeletons; i++)
+				{
+					bool hit = isColliding(fire_x, fire_y, FireWidth, FireHeight, skeleton_x[i], skeleton_y[i], 64, 76);
+					if (hit)
+						is_s_alive[i] = 0;
+				}
+				for (int i = 0; i < total_ghosts; i++)
+				{
+					bool hit = isColliding(fire_x, fire_y, FireWidth, FireHeight, ghost_x[i], ghost_y[i], 70, 64);
+					if (hit)
+						is_g_alive[i] = 0;
+				}
+			}
+
+			// displaying the enemies
+			for (int i = 0; i < total_skeletons; i++)
+			{
+				if (is_s_alive[i])
+					window.draw(skeleton_sprite[i]);
+			}
+			for (int i = 0; i < total_skeletons; i++)
+			{
+				if (is_g_alive[i])
+					window.draw(ghost_sprite[i]);
+			}
+
+			// sk_animation_timer += sk_animation_speed;
+			// if (is_skeleton_facing_right)
+			// {
+			// 	skeleton_x += 2;
+			// }
+			// else
+			// {
+			// 	skeleton_x -= 2;
+			// }
+			// char sk_bottom_mid, sk_bottom_right, sk_bottom_left, sk_right_mid, sk_left_mid;
+			// sk_bottom_left = lvl[(int)(skeleton_y + skeleton_height) / cell_size][(int)(skeleton_x) / cell_size];
+			// sk_bottom_right = lvl[(int)(skeleton_y + skeleton_height) / cell_size][(int)(skeleton_x + skeleton_width) / cell_size];
+			// sk_bottom_mid = lvl[(int)(skeleton_y + skeleton_height) / cell_size][(int)(skeleton_x + skeleton_width / 2) / cell_size];
+			// sk_right_mid = lvl[(int)(skeleton_y + skeleton_height / 2) / cell_size][(int)(skeleton_x + skeleton_width) / cell_size];
+			// sk_left_mid = lvl[(int)(skeleton_y + skeleton_height / 2) / cell_size][(int)(skeleton_x) / cell_size];
+			// if (sk_right_mid == '#')
+			// {
+			// 	is_skeleton_facing_right = false;
+			// }
+			// if (sk_left_mid == '#')
+			// {
+			// 	is_skeleton_facing_right = true;
+			// }
+			// if (!(sk_bottom_left == '#' || sk_bottom_mid == '#' || sk_bottom_right == '#'))
+			// {
+			// 	skeleton_y += 40;
+			// }
+			// if (sk_animation_timer >= 1.0f)
+			// {
+			// 	sk_animation_timer = 0.0f;
+			// 	sk_frame_index++;
+			// 	if (sk_frame_index > 4)
+			// 		sk_frame_index = 0;
+			// }
+			// skeletonFrame[sk_frame_index].setScale(is_skeleton_facing_right ? -2 : 2, 2);
+			// skeletonFrame[sk_frame_index].setPosition(skeleton_x + (is_skeleton_facing_right ? skeleton_width : 0), skeleton_y);
+			// window.draw(skeletonFrame[sk_frame_index]);
 
 			for (int i = 0; i < total_ghosts; i++)
 			{
-				bool hit = isColliding(fire_x, fire_y, FireWidth, FireHeight, ghost_x[i], ghost_y[i], 70, 64);
-				if (hit)
+				if (is_g_alive[i] && is_s_alive)
 				{
-					is_g_alive[i] = 0;
-					// ghost_speed[i] = 0; // stop movement
+					is_game_over = false;
+					break;
 				}
+				else
+				is_game_over = true;
 			}
 		}
-
-		for (int i = 0; i < total_skeletons; i++)
+		else
 		{
-			if (is_s_alive[i])
-				window.draw(skeleton_sprite[i]);
+			display_gameover(window, gameoverText);
 		}
-		for (int i = 0; i < total_skeletons; i++)
-		{
-			if (is_g_alive[i])
-				window.draw(ghost_sprite[i]);
-		}
-
-		// sk_animation_timer += sk_animation_speed;
-		// if (is_skeleton_facing_right)
-		// {
-		// 	skeleton_x += 2;
-		// }
-		// else
-		// {
-		// 	skeleton_x -= 2;
-		// }
-		// char sk_bottom_mid, sk_bottom_right, sk_bottom_left, sk_right_mid, sk_left_mid;
-		// sk_bottom_left = lvl[(int)(skeleton_y + skeleton_height) / cell_size][(int)(skeleton_x) / cell_size];
-		// sk_bottom_right = lvl[(int)(skeleton_y + skeleton_height) / cell_size][(int)(skeleton_x + skeleton_width) / cell_size];
-		// sk_bottom_mid = lvl[(int)(skeleton_y + skeleton_height) / cell_size][(int)(skeleton_x + skeleton_width / 2) / cell_size];
-		// sk_right_mid = lvl[(int)(skeleton_y + skeleton_height / 2) / cell_size][(int)(skeleton_x + skeleton_width) / cell_size];
-		// sk_left_mid = lvl[(int)(skeleton_y + skeleton_height / 2) / cell_size][(int)(skeleton_x) / cell_size];
-		// if (sk_right_mid == '#')
-		// {
-		// 	is_skeleton_facing_right = false;
-		// }
-		// if (sk_left_mid == '#')
-		// {
-		// 	is_skeleton_facing_right = true;
-		// }
-		// if (!(sk_bottom_left == '#' || sk_bottom_mid == '#' || sk_bottom_right == '#'))
-		// {
-		// 	skeleton_y += 40;
-		// }
-		// if (sk_animation_timer >= 1.0f)
-		// {
-		// 	sk_animation_timer = 0.0f;
-		// 	sk_frame_index++;
-		// 	if (sk_frame_index > 4)
-		// 		sk_frame_index = 0;
-		// }
-		// skeletonFrame[sk_frame_index].setScale(is_skeleton_facing_right ? -2 : 2, 2);
-		// skeletonFrame[sk_frame_index].setPosition(skeleton_x + (is_skeleton_facing_right ? skeleton_width : 0), skeleton_y);
-		// window.draw(skeletonFrame[sk_frame_index]);
-
 		window.display();
 	}
 
