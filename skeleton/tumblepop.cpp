@@ -11,6 +11,47 @@ using namespace std;
 int screen_x = 1152;
 int screen_y = 896;
 
+void setting_blocks_lvl1(RenderWindow &window, char **lvl, int height, int width)
+{
+
+	for (int i = 0; i < width; i++)
+		lvl[0][i] = '#'; // 0th row
+	for (int i = 3; i < 15; i++)
+		lvl[3][i] = '#'; // 3rd row
+	for (int i = 8; i < 10; i++)
+		lvl[4][i] = '#'; // 4rth row
+	for (int i = 0; i < 5; i++)
+		lvl[5][i] = '#'; // 5th row
+	for (int i = 7; i < 11; i++)
+		lvl[5][i] = '#'; // 5th row
+	for (int i = 13; i < width; i++)
+		lvl[5][i] = '#'; // 5th row
+	for (int i = 6; i < 9; i++)
+		lvl[i][7] = '#'; // 7th col
+	for (int i = 3; i < 7; i++)
+		lvl[7][i] = '#'; // 7th row
+	for (int i = 11; i < 15; i++)
+		lvl[7][i] = '#'; // 7th row
+	for (int i = 0; i < 5; i++)
+		lvl[9][i] = '#'; // 9th row
+	for (int i = 7; i < 11; i++)
+		lvl[9][i] = '#'; // 9th row
+	for (int i = 13; i < width; i++)
+		lvl[9][i] = '#'; // 9th row
+	for (int i = 8; i < 10; i++)
+		lvl[10][i] = '#'; // 10th row
+	for (int i = 3; i < 15; i++)
+		lvl[11][i] = '#'; // 11th row
+	for (int i = 6; i < 9; i++)
+		lvl[i][10] = '#'; // 10th col
+	for (int i = 0; i < width; i++)
+		lvl[height - 1][i] = '#'; // 13th row
+	for (int i = 0; i < 14; i++)
+		lvl[i][0] = '#'; // first column
+	for (int i = 0; i < 14; i++)
+		lvl[i][17] = '#'; // last column
+}
+
 // displaying the backgroung image and the blocks
 void display_level(RenderWindow &window, char **lvl, Texture &bgTex, Sprite &bgSprite, Texture &blockTexture, Sprite &blockSprite, const int height, const int width, const int cell_size)
 {
@@ -212,6 +253,7 @@ void player_gravity(char **lvl, float &offset_x, float &offset_y, float &velocit
 				velocityY = 0;
 		}
 	}
+
 	else
 	{
 		char bottom_left_down = lvl[(int)(offset_y + Pheight) / cell_size][(int)(player_x) / cell_size];
@@ -247,28 +289,60 @@ void player_gravity(char **lvl, float &offset_x, float &offset_y, float &velocit
 		{
 			ignoring_tiles = false;
 		}
-		else
-		{
-			player_y = offset_y;
-			onGround = false;
-		}
 	}
 }
 
 // displaying player
-void display_player(RenderWindow &window, Texture &SpriteSheet, bool player_Green, bool is_player_facing_right, Sprite GreenplayerFrame[], Sprite YellowplayerFrame[], int p_frame_index, float player_x, float player_y, int PlayerWidth)
+void display_player(RenderWindow &window, Texture &SpriteSheet, bool player_Green, bool is_player_facing_right, Sprite GreenplayerFrame[], Sprite YellowplayerFrame[], int p_frame_index, float player_x, float player_y, int PlayerWidth, bool onGroundNow, Sprite p1_j_sprite, Sprite p2_j_sprite, bool &down_key, Sprite p1_d_sprite, Sprite p2_d_sprite)
 {
-	if (player_Green)
+	if (!down_key)
 	{
-		GreenplayerFrame[p_frame_index].setScale(is_player_facing_right ? -2 : 2, 2);
-		GreenplayerFrame[p_frame_index].setPosition(player_x + (is_player_facing_right ? PlayerWidth : 0), player_y);
-		window.draw(GreenplayerFrame[p_frame_index]);
+		if (onGroundNow)
+		{
+			if (player_Green)
+			{
+				GreenplayerFrame[p_frame_index].setScale(is_player_facing_right ? -2 : 2, 2);
+				GreenplayerFrame[p_frame_index].setPosition(player_x + (is_player_facing_right ? PlayerWidth : 0), player_y);
+				window.draw(GreenplayerFrame[p_frame_index]);
+			}
+			else
+			{
+				YellowplayerFrame[p_frame_index].setScale(is_player_facing_right ? -2 : 2, 2);
+				YellowplayerFrame[p_frame_index].setPosition(player_x + (is_player_facing_right ? PlayerWidth : 0), player_y);
+				window.draw(YellowplayerFrame[p_frame_index]);
+			}
+		}
+		else
+		{
+			if (player_Green)
+			{
+				p1_j_sprite.setScale(is_player_facing_right ? -2 : 2, 2);
+				p1_j_sprite.setPosition(player_x + (is_player_facing_right ? PlayerWidth : 0), player_y);
+				window.draw(p1_j_sprite);
+			}
+			else
+			{
+				p2_j_sprite.setScale(is_player_facing_right ? -2 : 2, 2);
+				p2_j_sprite.setPosition(player_x + (is_player_facing_right ? PlayerWidth : 0), player_y);
+				window.draw(p2_j_sprite);
+			}
+		}
 	}
 	else
 	{
-		YellowplayerFrame[p_frame_index].setScale(is_player_facing_right ? -2 : 2, 2);
-		YellowplayerFrame[p_frame_index].setPosition(player_x + (is_player_facing_right ? PlayerWidth : 0), player_y);
-		window.draw(YellowplayerFrame[p_frame_index]);
+		if (player_Green)
+		{
+			p1_d_sprite.setScale(is_player_facing_right ? -2 : 2, 2);
+			p1_d_sprite.setPosition(player_x + (is_player_facing_right ? PlayerWidth : 0), player_y);
+			window.draw(p1_d_sprite);
+		}
+		else
+		{
+			p2_d_sprite.setScale(is_player_facing_right ? -2 : 2, 2);
+			p2_d_sprite.setPosition(player_x + (is_player_facing_right ? PlayerWidth : 0), player_y);
+			window.draw(p2_d_sprite);
+		}
+		down_key = false;
 	}
 }
 
@@ -283,7 +357,7 @@ void display_fire(RenderWindow &window, Texture SpriteSheet, bool is_player_faci
 }
 
 // is fire hit the enemy
-bool isColliding(float f_x, float f_y, float f_w, float f_h, float e_x, float e_y, float e_w, float e_h)
+bool isHitting(float f_x, float f_y, float f_w, float f_h, float e_x, float e_y, float e_w, float e_h)
 {
 	return !(f_x + f_w < e_x || f_x > e_x + e_w || f_y + f_h < e_y || f_y > e_y + e_h);
 }
@@ -357,14 +431,12 @@ int main()
 	// -----level and background textures and sprites-----
 	Texture bgTex;
 	Sprite bgSprite;
-
 	bgTex.loadFromFile("Data/bg.png");
 	bgSprite.setTexture(bgTex);
 	bgSprite.setPosition(0, 0);
 
 	Texture blockTexture;
 	Sprite blockSprite;
-
 	blockTexture.loadFromFile("Data/block1.png");
 	blockSprite.setTexture(blockTexture);
 
@@ -474,7 +546,6 @@ int main()
 	// -----The title image-----
 	Texture Title_Texture;
 	Sprite Title_Sprite;
-
 	Title_Texture.loadFromFile("Data/Title.png");
 	Title_Sprite.setTexture(Title_Texture);
 	Title_Sprite.setPosition(176, 364);
@@ -483,7 +554,6 @@ int main()
 	// -----The controls image-----
 	Texture controls_Texture;
 	controls_Texture.loadFromFile("Data/controls.png");
-
 	Sprite controls_Sprite[3];
 	for (int i = 0; i < 3; i++)
 	{
@@ -510,8 +580,8 @@ int main()
 	gameoverText.setFont(gamefont);
 
 	// ------Loading Green player------
-	Sprite p1_Sprite[6];
-	for (int i = 0; i < 6; i++)
+	Sprite p1_Sprite[8];
+	for (int i = 0; i < 8; i++)
 	{
 		p1_Sprite[i].setTexture(SpriteSheet);
 		// Walking animation frames
@@ -528,10 +598,16 @@ int main()
 		// showing Health image
 		else if (i == 5)
 			p1_Sprite[i].setTextureRect(IntRect(17, 18, 15, 14));
+		// jumping sprite
+		else if (i == 6)
+			p1_Sprite[i].setTextureRect(IntRect(422, 39, 31, 41));
+		// falling sprite
+		else if (i == 7)
+			p1_Sprite[i].setTextureRect(IntRect(525, 31, 31, 42));
 	}
 	// ------Loading Yellow player------
-	Sprite p2_Sprite[6];
-	for (int i = 0; i < 6; i++)
+	Sprite p2_Sprite[8];
+	for (int i = 0; i < 8; i++)
 	{
 		p2_Sprite[i].setTexture(SpriteSheet);
 		if (i == 0)
@@ -547,6 +623,12 @@ int main()
 		// showing Health image
 		else if (i == 5)
 			p2_Sprite[i].setTextureRect(IntRect(17, 207, 15, 14));
+		// jumping sprite
+		else if (i == 6)
+			p2_Sprite[i].setTextureRect(IntRect(422, 228, 31, 41));
+		// falling sprite
+		else if (i == 7)
+			p2_Sprite[i].setTextureRect(IntRect(525, 220, 31, 42));
 	}
 
 	// -----arrays of both players sprites for animation walking----
@@ -554,7 +636,8 @@ int main()
 	Sprite YellowplayerFrame[5] = {p2_Sprite[0], p2_Sprite[1], p2_Sprite[2], p2_Sprite[3], p2_Sprite[4]};
 	int p_frame_index = 0;
 	float p_animation_timer = 0.0f;
-	const float p_animation_speed = 0.15f; // Adjust the speed of animation
+	// -----speed of animation-----
+	const float p_animation_speed = 0.15f;
 
 	// if it is true, then move to player selection screen
 	bool isPlayerSelection = false;
@@ -562,7 +645,7 @@ int main()
 	bool player_Selected = false;
 	// true -> green , false -> yellow
 	bool player_Green = false;
-	bool is_game_over = false;
+	bool all_enem_died = false;
 
 	// -----Music initialisation-----
 	Music lvlMusic;
@@ -588,7 +671,6 @@ int main()
 	// bool right_collide = false;
 
 	bool onGround = false;
-	bool is_player_facing_right = false; // to track player direction
 
 	float offset_x = 0;
 	float offset_y = 0;
@@ -602,6 +684,14 @@ int main()
 	// for clampling the player when it reaches ground (down key press)
 	bool reach_last_ground = false;
 	bool ignoring_tiles = false;
+	// to track player direction
+	bool is_player_facing_right = false;
+	// we made this instesd of using onGround because when up key presses player moves up, and durig all this motion we want to show different sprite and on landing the default sprite
+	bool onGroundNow = false;
+	// is fire hits the ememy?
+	bool hit = false;
+	//
+	bool down_key = false;
 
 	// char top_left = '\0';
 	// char top_right = '\0';
@@ -635,42 +725,7 @@ int main()
 			lvl[i][j] = '.';
 
 	// -----Adding level 1 blocks-----
-	for (int i = 0; i < width; i++)
-		lvl[0][i] = '#'; // 0th row
-	for (int i = 3; i < 15; i++)
-		lvl[3][i] = '#'; // 3rd row
-	for (int i = 8; i < 10; i++)
-		lvl[4][i] = '#'; // 4rth row
-	for (int i = 0; i < 5; i++)
-		lvl[5][i] = '#'; // 5th row
-	for (int i = 7; i < 11; i++)
-		lvl[5][i] = '#'; // 5th row
-	for (int i = 13; i < width; i++)
-		lvl[5][i] = '#'; // 5th row
-	for (int i = 6; i < 9; i++)
-		lvl[i][7] = '#'; // 7th col
-	for (int i = 3; i < 7; i++)
-		lvl[7][i] = '#'; // 7th row
-	for (int i = 11; i < 15; i++)
-		lvl[7][i] = '#'; // 7th row
-	for (int i = 0; i < 5; i++)
-		lvl[9][i] = '#'; // 9th row
-	for (int i = 7; i < 11; i++)
-		lvl[9][i] = '#'; // 9th row
-	for (int i = 13; i < width; i++)
-		lvl[9][i] = '#'; // 9th row
-	for (int i = 8; i < 10; i++)
-		lvl[10][i] = '#'; // 10th row
-	for (int i = 3; i < 15; i++)
-		lvl[11][i] = '#'; // 11th row
-	for (int i = 6; i < 9; i++)
-		lvl[i][10] = '#'; // 10th col
-	for (int i = 0; i < width; i++)
-		lvl[height - 1][i] = '#'; // 13th row
-	for (int i = 0; i < 14; i++)
-		lvl[i][0] = '#'; // first column
-	for (int i = 0; i < 14; i++)
-		lvl[i][17] = '#'; // last column
+	setting_blocks_lvl1(window, lvl, height, width);
 
 	Event ev;
 	// -----main loop-----
@@ -687,25 +742,26 @@ int main()
 			{
 			}
 		}
-		if (!is_game_over)
+
+		// First show the tumblepop image
+		if (!isPlayerSelection)
 		{
-			// First show the tumblepop image
-			if (!isPlayerSelection)
-			{
-				display_tumblepop_image(window, Title_Sprite, isPlayerSelection, ev);
-				continue;
-			}
-			// player selection screen
-			if (isPlayerSelection && !player_Selected)
-			{
-				display_selection_screen(window, g_Select_Sprite, y_Select_Sprite, isPlayerSelection, ev, player_Green, player_Selected, selectText, controls_Sprite, controlText);
-				continue;
-			}
-			// presing escape to close
-			if (Keyboard::isKeyPressed(Keyboard::Escape))
-			{
-				window.close();
-			}
+			display_tumblepop_image(window, Title_Sprite, isPlayerSelection, ev);
+			continue;
+		}
+		// player selection screen
+		if (isPlayerSelection && !player_Selected)
+		{
+			display_selection_screen(window, g_Select_Sprite, y_Select_Sprite, isPlayerSelection, ev, player_Green, player_Selected, selectText, controls_Sprite, controlText);
+			continue;
+		}
+		// presing escape to close
+		if (Keyboard::isKeyPressed(Keyboard::Escape))
+		{
+			window.close();
+		}
+		if (!all_enem_died)
+		{
 			// -----Movement of the player-----
 			if (Keyboard::isKeyPressed(Keyboard::Left))
 			{
@@ -720,7 +776,7 @@ int main()
 			if (Keyboard::isKeyPressed(Keyboard::Up) && onGround)
 			{
 				velocityY = jumpStrength;
-				onGround = false;
+				// onGround = false;
 			}
 			// checking weather the player is on Last Platform
 			if ((int)(player_y + PlayerHeight) / cell_size >= 12)
@@ -735,10 +791,12 @@ int main()
 			if (!((row == 2 || row == 4) && col >= 7 && col <= 10))
 			{
 				// down movement
-				if (Keyboard::isKeyPressed(Keyboard::Down) && onGround && !reach_last_ground)
+				if (Keyboard::isKeyPressed(Keyboard::Down) && !reach_last_ground)
 				{
 					velocityY = 10;
 					ignoring_tiles = true;
+					down_key = true;
+					// onGround = false;
 				}
 			}
 			// Animation of the player
@@ -772,7 +830,12 @@ int main()
 			// for health display
 			display_health_image(window, p1_Sprite[5], p2_Sprite[5], player_Green);
 
-			display_player(window, SpriteSheet, player_Green, is_player_facing_right, GreenplayerFrame, YellowplayerFrame, p_frame_index, player_x, player_y, PlayerWidth);
+			int foot_y = (int)(player_y + PlayerHeight + 2) / cell_size;
+			char bL = lvl[foot_y][(int)player_x / cell_size];
+			char bM = lvl[foot_y][(int)(player_x + PlayerWidth / 2) / cell_size];
+			char bR = lvl[foot_y][(int)(player_x + PlayerWidth) / cell_size];
+			onGroundNow = (bL == '#' || bM == '#' || bR == '#');
+			display_player(window, SpriteSheet, player_Green, is_player_facing_right, GreenplayerFrame, YellowplayerFrame, p_frame_index, player_x, player_y, PlayerWidth, onGroundNow, p1_Sprite[6], p2_Sprite[6], down_key, p1_Sprite[7], p2_Sprite[7]);
 
 			if (Keyboard::isKeyPressed(Keyboard::Space))
 				display_fire(window, SpriteSheet, is_player_facing_right, player_x, player_y, PlayerWidth, fire_Sprite, FireWidth, fire_x, fire_y);
@@ -782,13 +845,13 @@ int main()
 			{
 				for (int i = 0; i < total_skeletons; i++)
 				{
-					bool hit = isColliding(fire_x, fire_y, FireWidth, FireHeight, skeleton_x[i], skeleton_y[i], 64, 76);
+					hit = isHitting(fire_x, fire_y, FireWidth, FireHeight, skeleton_x[i], skeleton_y[i], 64, 76);
 					if (hit)
 						is_s_alive[i] = 0;
 				}
 				for (int i = 0; i < total_ghosts; i++)
 				{
-					bool hit = isColliding(fire_x, fire_y, FireWidth, FireHeight, ghost_x[i], ghost_y[i], 70, 64);
+					bool hit = isHitting(fire_x, fire_y, FireWidth, FireHeight, ghost_x[i], ghost_y[i], 70, 64);
 					if (hit)
 						is_g_alive[i] = 0;
 				}
@@ -844,15 +907,16 @@ int main()
 			// skeletonFrame[sk_frame_index].setPosition(skeleton_x + (is_skeleton_facing_right ? skeleton_width : 0), skeleton_y);
 			// window.draw(skeletonFrame[sk_frame_index]);
 
+			// Checking if all the enemies died
 			for (int i = 0; i < total_ghosts; i++)
 			{
 				if (is_g_alive[i] && is_s_alive)
 				{
-					is_game_over = false;
+					all_enem_died = false;
 					break;
 				}
 				else
-				is_game_over = true;
+					all_enem_died = true;
 			}
 		}
 		else
