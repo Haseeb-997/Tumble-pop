@@ -55,12 +55,10 @@ void main_menu(RenderWindow &window, Text &menuT, Text &playgameT, Text &select_
 
 	playgameT.setString("PLAY GAME");
 	playgameT.setCharacterSize(70);
-	playgameT.setFillColor(Color::White);
 	playgameT.setPosition(100, 320);
 
 	select_the_playerT.setString("PLAYER\n\tSELECTION");
 	select_the_playerT.setCharacterSize(70);
-	select_the_playerT.setFillColor(Color::White);
 	select_the_playerT.setPosition(100, 470);
 
 	controlT.setString("CONTROLS");
@@ -70,7 +68,6 @@ void main_menu(RenderWindow &window, Text &menuT, Text &playgameT, Text &select_
 
 	EnterT.setString("PRESS ENTER TO GO");
 	EnterT.setCharacterSize(20);
-	EnterT.setFillColor(Color::White);
 	EnterT.setPosition(750, 860);
 
 	Text menuarr[3] = {playgameT, select_the_playerT, controlT};
@@ -229,11 +226,10 @@ void display_player(RenderWindow &window, bool player_Green, bool is_player_faci
 }
 
 // displaying fire
-void display_fire(RenderWindow &window, bool is_player_facing_right, float &player_x, float &player_y, int PlayerWidth, Sprite &fire_Sprite, int FireWidth, float &fire_x, float &fire_y)
+void display_fire(RenderWindow &window, bool is_player_facing_right, float &player_x, float &player_y, int PlayerWidth, Sprite &fire_Sprite, int FireWidth, float &fire_x, float &fire_y, bool player_Green)
 {
-	// fire_y = player_y + 15;
-	// fire_x = is_player_facing_right ? (player_x + PlayerWidth + FireWidth) : (player_x - FireWidth);
-	fire_Sprite.setScale(is_player_facing_right ? -2 : 2, 2);
+	float scale = (player_Green) ? 2.0f : 2.4f;
+	fire_Sprite.setScale(is_player_facing_right ? -scale : scale, scale);
 	fire_Sprite.setPosition(fire_x, fire_y);
 	window.draw(fire_Sprite);
 }
@@ -261,13 +257,19 @@ void display_controls(RenderWindow &window, Sprite controls_Sprite[3], Text &Bac
 }
 
 // displaying game over
-void display_gameover(RenderWindow &window, Text &gameoverText)
+void display_gameover(RenderWindow &window, Text &gameoverText, Text &EnterT)
 {
 	gameoverText.setString("GAME OVER");
 	gameoverText.setCharacterSize(130);
 	gameoverText.setFillColor(Color::White);
 	gameoverText.setPosition(0, 448);
+
+	EnterT.setString("PRESS ENTER TO RETURN TO THE MENU");
+	EnterT.setCharacterSize(20);
+	EnterT.setPosition(450, 860);
+
 	window.draw(gameoverText);
+	window.draw(EnterT);
 }
 
 void display_enemies(RenderWindow &window, Sprite skeleton_sprite[], int total_skeletons, Sprite ghost_sprite[], int total_ghosts, bool is_s_alive[], bool is_g_alive[])
@@ -329,12 +331,10 @@ void move_player(char **lvl, float &offset_x, float &player_x, float speed, bool
 }
 
 // movement of the ghost
-void ghost_move(float g_x[], float g_speed[], float g_y[], Sprite g_Sprite[], float low[], float high[], int ghosts, bool is_g_sucking[])
+void ghost_move(float g_x[], float g_speed[], float g_y[], Sprite g_Sprite[], float low[], float high[], int ghosts)
 {
 	for (int i = 0; i < ghosts; i++)
 	{
-		if (is_g_sucking[i])
-			continue;
 		g_x[i] += g_speed[i];
 		if (g_x[i] < low[i])
 		{
@@ -500,10 +500,11 @@ void player_gravity(char **lvl, float &offset_x, float &offset_y, float &velocit
 	}
 }
 
-// is fire hit the enemy
-bool isColliding(float f_x, float f_y, float f_w, float f_h, float e_x, float e_y, float e_w, float e_h)
+// is player hits the power ups and is fire hits the enemy
+// a --> player, b --> power ups and a --> fire, b --> enemy
+bool isColliding(float a_x, float a_y, float a_w, float a_h, float b_x, float b_y, float b_w, float b_h)
 {
-	return !(f_x + f_w < e_x || f_x > e_x + e_w || f_y + f_h < e_y || f_y > e_y + e_h);
+	return !(a_x + a_w < b_x || a_x > b_x + b_w || a_y + a_h < b_y || a_y > b_y + b_h);
 }
 
 // player collision with enemies and resetting
@@ -533,25 +534,6 @@ void enemies_collision(bool is_player_facing_right, float &player_x, float &play
 		player_y = 762;
 	}
 }
-
-// ghost movement function
-// void ghost_move(float &ghost_x, float &g_speed, float &ghost_y, Sprite &ghost_Sprite, int low, int high)
-// {
-// 	ghost_x += g_speed;
-// 	if (ghost_x < low)
-// 	{
-// 		g_speed = 2;
-// 		ghost_Sprite.setScale(-2, 2);
-// 		ghost_x += 50;
-// 	}
-// 	if (ghost_x > high)
-// 	{
-// 		g_speed = -2;
-// 		ghost_Sprite.setScale(2, 2);
-// 		ghost_x -= 50;
-// 	}
-// 	ghost_Sprite.setPosition(ghost_x, ghost_y);
-// }
 
 int main()
 {
@@ -595,8 +577,8 @@ int main()
 	Sprite fire_Sprite;
 	fire_Sprite.setTexture(SpriteSheet);
 	fire_Sprite.setTextureRect(IntRect(349, 174, 48, 29));
-	int FireWidth = 96;
-	int FireHeight = 58;
+	float FireWidth = 96.0f;
+	float FireHeight = 58.0f;
 	float fire_x = 0;
 	float fire_y = 0;
 
@@ -626,10 +608,6 @@ int main()
 	}
 	// kia wo mer gya he?
 	bool is_g_alive[total_ghosts] = {1, 1, 1, 1, 1, 1, 1, 1};
-	// kia wo suck ho rha he?
-	bool is_g_sucking[total_ghosts] = {0, 0, 0, 0};
-	// sucking timing
-	float die_g_timer[total_ghosts] = {0, 0, 0, 0};
 
 	// -----Skeletonsheet loading-----
 	Texture skeletonSheet;
@@ -658,10 +636,6 @@ int main()
 	bool is_skeleton_facing_right[total_skeletons] = {0, 0, 0, 0};
 	// kia wo mer gya he?
 	bool is_s_alive[total_skeletons] = {1, 1, 1, 1};
-	// kia wo suck ho rha he?
-	bool is_s_sucking[total_skeletons] = {0, 0, 0, 0};
-	// sucking timing
-	float die_s_timer[total_skeletons] = {0, 0, 0, 0};
 
 	// -----The title image-----
 	Texture Title_Texture;
@@ -1002,11 +976,49 @@ int main()
 				life_sprite.setPosition(life_x, life_y);
 			}
 			// fire and enemies collision
+			// -----VACUUM LOGIC-----
 			if (Keyboard::isKeyPressed(Keyboard::Space))
 			{
+				float new_fire_width = (player_Green) ? FireWidth : FireWidth * 1.2;
+				float new_fire_height = (player_Green) ? FireHeight : FireHeight * 1.2;
+				fire_y = player_y + ((player_Green) ? 15 : 10);
+				// Use this for collision only, why this so lemme explain
+				// So, our function isColliding recieves whatever the number we sent, whether it is flipping or not
+				// when it is not flipping, default left facing, the x is top left and function also recieves top left and it looks like correct collision
+				// but when it is flipped the x becomes top right and junction also recieves top right and collision become weired
+				// so we must sent the top left x of both fire and of enemy
+				float fire_top_left;
+				if (is_player_facing_right)
+				{ //                                    top left of fire
+				  //                                    |
+					// Top left of the player--> ****** |
+					//                           *    * **********
+					//                           *    * **********
+					//                           ******
+					fire_top_left = player_x + PlayerWidth;
+					fire_x = fire_top_left + new_fire_width;
+				}
+				else
+				{ //                                   Top left of the player
+				  //                                   |
+					//                                 ******
+					// top left of fire --> ********** *    *
+					//                      ********** *    *
+					//                                 ******
+					fire_top_left = player_x - new_fire_width;
+					fire_x = fire_top_left;
+				}
+				// Skeletons
 				for (int i = 0; i < total_skeletons; i++)
 				{
-					hit = isColliding(fire_x, fire_y, FireWidth, FireHeight, skeleton_x[i], skeleton_y[i], 64, 76);
+					float skeleton_top_left;
+					// same the upper logic goes for enemies
+					if (skeleton_speed[i] > 0) // facing right
+						skeleton_top_left = skeleton_x[i] - 64;
+					else
+						skeleton_top_left = skeleton_x[i];
+
+					hit = isColliding(fire_top_left, fire_y, new_fire_width, new_fire_height, skeleton_top_left, skeleton_y[i], 64, 76);
 					if (hit && is_s_alive[i])
 					{
 						scores += 75;
@@ -1014,9 +1026,17 @@ int main()
 						skeleton_speed[i] = 0; // stop movement
 					}
 				}
+				// Ghosts
 				for (int i = 0; i < total_ghosts; i++)
 				{
-					hit = isColliding(fire_x, fire_y, FireWidth, FireHeight, ghost_x[i], ghost_y[i], 70, 64);
+					float ghost_top_left;
+					// same the upper logic goes for enemies
+					if (ghost_speed[i] > 0) // facing right
+						ghost_top_left = ghost_x[i] - 64;
+					else
+						ghost_top_left = ghost_x[i];
+
+					hit = isColliding(fire_top_left, fire_y, new_fire_width, new_fire_height, ghost_top_left, ghost_y[i], 70, 64);
 					if (hit && is_g_alive[i])
 					{
 						scores += 50;
@@ -1039,7 +1059,7 @@ int main()
 				skeleton_move(is_skeleton_facing_right[i], lvl, skeleton_x[i], skeleton_y[i], skeleton_speed[i], skeleton_sprite[i], skeleton_gravity[i]);
 			}
 			// ghost move calling for  different functions
-			ghost_move(ghost_x, ghost_speed, ghost_y, ghost_sprite, ghost_left_x, ghost_right_x, total_ghosts, is_g_sucking);
+			ghost_move(ghost_x, ghost_speed, ghost_y, ghost_sprite, ghost_left_x, ghost_right_x, total_ghosts);
 			for (int i = 0; i < total_ghosts; i++)
 			{
 				// ghost_move(ghost_x[i],ghost_speed[i],ghost_y[i],ghost_sprite[i],ghost_left_x,ghost_right_x);
@@ -1080,11 +1100,10 @@ int main()
 		else if (current_Window == GAME)
 		{
 			display_level(window, lvl, bgSprite, blockSprite, height, width, cell_size);
-
-			fire_y = player_y + 15;
-			fire_x = is_player_facing_right ? (player_x + PlayerWidth + FireWidth) : (player_x - FireWidth);
+			// displaying fire
+			float draw_fire_w = (player_Green) ? FireWidth : FireWidth * 1.2;
 			if (Keyboard::isKeyPressed(Keyboard::Space))
-				display_fire(window, is_player_facing_right, player_x, player_y, PlayerWidth, fire_Sprite, FireWidth, fire_x, fire_y);
+				display_fire(window, is_player_facing_right, player_x, player_y, PlayerWidth, fire_Sprite, draw_fire_w, fire_x, fire_y, player_Green);
 
 			int foot_y = (int)(player_y + PlayerHeight + 2) / cell_size;
 			char bL = lvl[foot_y][(int)player_x / cell_size];
@@ -1098,7 +1117,7 @@ int main()
 		}
 		else if (current_Window == GAMEOVER)
 		{
-			display_gameover(window, gameoverText);
+			display_gameover(window, gameoverText, EnterText);
 		}
 		window.display();
 	}
