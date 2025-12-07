@@ -12,8 +12,7 @@ using namespace std;
 int screen_x = 1152;
 int screen_y = 896;
 
-// reset game
-void reset_game(float &fire_x, float &fire_y, float ghost_y[], float ghost_x[], float skeleton_x[], float skeleton_y[], float ghost_speed[], bool is_g_alive[], Sprite ghost_sprite[], float skeleton_gravity[], float skeleton_speed[], bool is_skeleton_facing_right[], bool is_s_alive[], Sprite skeleton_sprite[], int &scores, int &player_lives, bool &speed_pu_present, bool &life_pu_present, int &p_frame_index, float &p_animation_timer, float &player_x, float &player_y, bool &onGround, float &offset_x, float &offset_y, float &velocityY, bool &reach_last_ground, bool &ignoring_tiles, bool &is_player_facing_right, bool &onGroundNow, bool &down_key, bool &hit, bool &pause, int &suction_count, int total_ghosts, int total_skeletons, int speed, int &level_no, bool &new_level, float ghost_right_x[], float ghost_left_x[], int sucked_enemies[])
+void reset_to_lvl1(float &fire_x, float &fire_y, float ghost_y[], float ghost_x[], float skeleton_x[], float skeleton_y[], float ghost_speed[], bool is_g_alive[], Sprite ghost_sprite[], float skeleton_gravity[], float skeleton_speed[], bool is_skeleton_facing_right[], bool is_s_alive[], Sprite skeleton_sprite[], int &scores, int &player_lives, bool &speed_pu_present, bool &life_pu_present, int &p_frame_index, float &p_animation_timer, float &player_x, float &player_y, bool &onGround, float &offset_x, float &offset_y, float &velocityY, bool &reach_last_ground, bool &ignoring_tiles, bool &is_player_facing_right, bool &onGroundNow, bool &down_key, bool &hit, bool &pause, int &suction_count, int total_ghosts, int total_skeletons, int speed, int &level_no, bool &new_level, float ghost_right_x[], float ghost_left_x[], int sucked_enemies[], bool &sradius_pu_present, int &max_sucked_enemies)
 {
 	fire_x = 0;
 	fire_y = 0;
@@ -23,13 +22,13 @@ void reset_game(float &fire_x, float &fire_y, float ghost_y[], float ghost_x[], 
 		ghost_y[0] = 512, ghost_y[1] = 256, ghost_y[2] = 256, ghost_y[3] = 512, ghost_y[4] = 128, ghost_y[5] = 640, ghost_y[6] = 128, ghost_y[7] = 640;
 		skeleton_x[0] = 200, skeleton_x[1] = 800, skeleton_x[2] = 150, skeleton_x[3] = 900;
 		skeleton_y[0] = 120, skeleton_y[1] = 120, skeleton_y[2] = 370, skeleton_y[3] = 370;
-		for (int i = 0; i < total_ghosts; i++)
+		for (int i = 0; i < 8; i++)
 		{
 			ghost_speed[i] = 2;
 			is_g_alive[i] = 1;
 			ghost_sprite[i].setScale(-2, 2);
 		}
-		for (int i = 0; i < total_skeletons; i++)
+		for (int i = 0; i < 4; i++)
 		{
 			skeleton_gravity[i] = 0;
 			skeleton_speed[i] = 1.5;
@@ -40,73 +39,26 @@ void reset_game(float &fire_x, float &fire_y, float ghost_y[], float ghost_x[], 
 	}
 	else
 	{
-
-		ghost_x[0] = 128;
-		ghost_x[1] = 128;
-		ghost_x[2] = 800;
-		ghost_x[3] = 800;
-		ghost_x[4] = 256;
-		ghost_x[5] = 256;
-		ghost_x[6] = 704;
-		ghost_x[7] = 704;
-
-		ghost_y[1] = 512;
-		ghost_y[2] = 256;
-		ghost_y[0] = 256;
-		ghost_y[3] = 512;
-		ghost_y[4] = 128;
-		ghost_y[5] = 640;
-		ghost_y[6] = 128;
-		ghost_y[7] = 640;
-
-		ghost_left_x[0] = 64;
-		ghost_left_x[1] = 64;
-		ghost_left_x[2] = 840;
-		ghost_left_x[3] = 840;
-		ghost_left_x[4] = 256;
-		ghost_left_x[5] = 192;
-		ghost_left_x[6] = 704;
-		ghost_left_x[7] = 704;
-
-		ghost_right_x[0] = 320;
-		ghost_right_x[1] = 320;
-		ghost_right_x[2] = 1090;
-		ghost_right_x[3] = 1090;
-		ghost_right_x[4] = 512;
-		ghost_right_x[5] = 448;
-		ghost_right_x[6] = 896;
-		ghost_right_x[7] = 960;
-
-		for (int i = 0; i < total_ghosts; i++)
+		for (int i = 0; i < 4; i++)
 		{
 			ghost_speed[i] = 2;
-		}
-		// ghost_speed[0] = 2;
-		// ghost_speed[1] = 2;
-		// ghost_speed[2] = 2;
-		// ghost_speed[3] = 2;
-		// ghost_speed[4] = 2;
-		// ghost_speed[5] = 2;
-		// ghost_speed[6] = 2;
-		// ghost_speed[7] = 2;
-
-		for (int i = 0; i < total_ghosts; i++)
-		{
 			is_g_alive[i] = 1;
+			ghost_sprite[i].setScale(-2, 2);
 		}
-		// is_g_alive[0] = 1;
-		// is_g_alive[1] = 1;
-		// is_g_alive[2] = 1;
-		// is_g_alive[3] = 1;
-		// is_g_alive[4] = 1;
-		// is_g_alive[5] = 1;
-		// is_g_alive[6] = 1;
-		// is_g_alive[7] = 1;
+		for (int i = 0; i < 9; i++)
+		{
+			skeleton_gravity[i] = 0;
+			skeleton_speed[i] = 1.5;
+			is_skeleton_facing_right[i] = 0;
+			is_s_alive[i] = 1;
+			skeleton_sprite[i].setScale(2, 2);
+		}
 	}
 	scores = 0;
 	player_lives = 3;
 	speed_pu_present = true;
 	life_pu_present = true;
+	sradius_pu_present = true;
 	p_frame_index = 0;
 	p_animation_timer = 0.0f;
 	player_x = 382;
@@ -125,8 +77,36 @@ void reset_game(float &fire_x, float &fire_y, float ghost_y[], float ghost_x[], 
 	pause = false;
 	suction_count = 0;
 	level_no = 1;
+	max_sucked_enemies = 3;
 	new_level = true;
-	for (int i = 0; i < 3; i++)
+	for (int i = 0; i < 5; i++)
+		sucked_enemies[i] = 0;
+}
+
+void setting_to_lvl2(int &level_no, bool &new_level, int &scores, int &player_lives, bool &speed_pu_present, bool &life_pu_present, bool &sRadius_pu_present, float &player_x, float &player_y, float &speed, int &suction_count, int &max_sucked_enemies, int sucked_enemies[], float &speedx, float &speedy, float &lifex, float &lifey, float &sradx, float &srady, Sprite &speed_pu, Sprite &life_ou, Sprite &sucrad_pu)
+{
+	level_no = 2;
+	new_level = true;
+	scores += 100;
+	player_lives = 3;
+	speed_pu_present = true;
+	life_pu_present = true;
+	sRadius_pu_present = true;
+	player_x = 382;
+	player_y = 60;
+	speed = 5;
+	suction_count = 0;
+	speedx = 70;
+	speedy = 448;
+	lifex = 570;
+	lifey = 64;
+	sradx = 640;
+	srady = 704;
+	speed_pu.setPosition(speedx, speedy);
+	life_ou.setPosition(lifex, lifey);
+	sucrad_pu.setPosition(sradx, srady);
+	max_sucked_enemies = 5;		// for level 2
+	for (int i = 0; i < 5; i++) // Clear the entire bag
 		sucked_enemies[i] = 0;
 }
 
@@ -274,97 +254,49 @@ void load_level(int level_no, Texture &bgTex, Sprite &bgSprite, char **lvl, cons
 		{
 			ghost_speed[i] = 2;
 		}
-		// ghost_speed[0] = 2;
-		// ghost_speed[1] = 2;
-		// ghost_speed[2] = 2;
-		// ghost_speed[3] = 2;
-		// ghost_speed[4] = 2;
-		// ghost_speed[5] = 2;
-		// ghost_speed[6] = 2;
-		// ghost_speed[7] = 2;
 
 		for (int i = 0; i < total_ghosts; i++)
 		{
 			is_g_alive[i] = 1;
 		}
-		// is_g_alive[0] = 1;
-		// is_g_alive[1] = 1;
-		// is_g_alive[2] = 1;
-		// is_g_alive[3] = 1;
-		// is_g_alive[4] = 1;
-		// is_g_alive[5] = 1;
-		// is_g_alive[6] = 1;
-		// is_g_alive[7] = 1;
 	}
 	else
 	{
+
 		bgTex.loadFromFile("Data/lvl2.png");
 		bgSprite.setTexture(bgTex);
 		bgSprite.setPosition(0, 0);
 
 		setting_blocks_lvl2(lvl, height, width);
 
-		ghost_x[0] = 128;
-		ghost_x[1] = 128;
-		ghost_x[2] = 800;
-		ghost_x[3] = 800;
-		ghost_x[4] = 256;
-		ghost_x[5] = 256;
-		ghost_x[6] = 704;
-		ghost_x[7] = 704;
+		ghost_x[0] = 384;
+		ghost_x[1] = 64;
+		ghost_x[2] = 768;
+		ghost_x[3] = 768;
 
-		ghost_y[1] = 512;
-		ghost_y[2] = 256;
-		ghost_y[0] = 256;
-		ghost_y[3] = 512;
-		ghost_y[4] = 128;
-		ghost_y[5] = 640;
-		ghost_y[6] = 128;
-		ghost_y[7] = 640;
+		ghost_y[1] = 640;
+		ghost_y[2] = 64;
+		ghost_y[0] = 64;
+		ghost_y[3] = 640;
 
-		ghost_left_x[0] = 64;
-		ghost_left_x[1] = 64;
-		ghost_left_x[2] = 840;
-		ghost_left_x[3] = 840;
-		ghost_left_x[4] = 256;
-		ghost_left_x[5] = 192;
-		ghost_left_x[6] = 704;
-		ghost_left_x[7] = 704;
+		ghost_left_x[0] = 256;
+		ghost_left_x[1] = 256;
+		ghost_left_x[2] = 384;
+		ghost_left_x[3] = 384;
 
-		ghost_right_x[0] = 320;
-		ghost_right_x[1] = 320;
-		ghost_right_x[2] = 1090;
-		ghost_right_x[3] = 1090;
-		ghost_right_x[4] = 512;
-		ghost_right_x[5] = 448;
-		ghost_right_x[6] = 896;
-		ghost_right_x[7] = 960;
+		ghost_right_x[0] = 470;
+		ghost_right_x[1] = 470;
+		ghost_right_x[2] = 800;
+		ghost_right_x[3] = 800;
 
-		for (int i = 0; i < total_ghosts; i++)
+		for (int i = 0; i < 4; i++)
 		{
 			ghost_speed[i] = 2;
 		}
-		// ghost_speed[0] = 2;
-		// ghost_speed[1] = 2;
-		// ghost_speed[2] = 2;
-		// ghost_speed[3] = 2;
-		// ghost_speed[4] = 2;
-		// ghost_speed[5] = 2;
-		// ghost_speed[6] = 2;
-		// ghost_speed[7] = 2;
-
-		for (int i = 0; i < total_ghosts; i++)
+		for (int i = 0; i < 4; i++)
 		{
 			is_g_alive[i] = 1;
 		}
-		// is_g_alive[0] = 1;
-		// is_g_alive[1] = 1;
-		// is_g_alive[2] = 1;
-		// is_g_alive[3] = 1;
-		// is_g_alive[4] = 1;
-		// is_g_alive[5] = 1;
-		// is_g_alive[6] = 1;
-		// is_g_alive[7] = 1;
 	}
 }
 
@@ -554,25 +486,31 @@ void display_fire(RenderWindow &window, bool is_player_facing_right, Sprite &fir
 	window.draw(fire_Sprite);
 }
 
-void display_controls(RenderWindow &window, Sprite controls_Sprite[3], Text &BackspaceT)
+void display_controls(RenderWindow &window, Sprite controls_Sprite[3], Text &BackspaceT, Text &PauseT)
 {
 	BackspaceT.setString("PRESS BACKSPACE TO GO BACK TO THE MENU");
 	BackspaceT.setCharacterSize(20);
 	BackspaceT.setFillColor(Color::White);
 	BackspaceT.setPosition(175, 860);
 
+	PauseT.setString("   PRESS P FOR PAUSE\n\nPRESS Q TO QUIT THE GAME");
+	PauseT.setCharacterSize(25);
+	PauseT.setFillColor(Color::White);
+	PauseT.setPosition(530, 368);
+
 	for (int i = 0; i < 3; i++)
 	{
 		controls_Sprite[i].setScale(2, 2);
 		if (i == 0)
-			controls_Sprite[i].setPosition(413, 168);
+			controls_Sprite[i].setPosition(200, 168);
 		else if (i == 1)
-			controls_Sprite[i].setPosition(413, 368);
+			controls_Sprite[i].setPosition(200, 368);
 		else if (i == 2)
-			controls_Sprite[i].setPosition(413, 568);
+			controls_Sprite[i].setPosition(200, 568);
 		window.draw(controls_Sprite[i]);
 	}
 	window.draw(BackspaceT);
+	window.draw(PauseT);
 }
 
 void display_loose(RenderWindow &window, Text &looseT, Text &BackspaceT)
@@ -609,10 +547,10 @@ void display_quit(RenderWindow &window, Text &quitText, Text &BackspaceT)
 
 void display_win(RenderWindow &window, Text &BackspaceT, Text &winText)
 {
-	winText.setString("YOU WIN");
+	winText.setString("YOU WIN\n\n+100\n SCORES");
 	winText.setCharacterSize(130);
 	winText.setFillColor(Color::White);
-	winText.setPosition(130, 340);
+	winText.setPosition(60, 100);
 
 	BackspaceT.setString("PRESS BACKSPACE TO GO BACK TO THE MENU\n\n  OR ENTER TO MOVE TO THE NEXT LEVEL");
 	BackspaceT.setCharacterSize(20);
@@ -637,7 +575,7 @@ void display_enemies(RenderWindow &window, Sprite skeleton_sprite[], int total_s
 	}
 }
 
-void display_powerups(RenderWindow &window, Text &scoresText, Text &livesText, int scores, int player_lives, bool speed_pu_present, bool life_pu_present, Sprite &speed_sprite, Sprite &life_sprite)
+void display_powerups(RenderWindow &window, Text &scoresText, Text &livesText, int scores, int player_lives, bool speed_pu_present, bool life_pu_present, Sprite &speed_sprite, Sprite &life_sprite, Sprite &sRad_sprite, bool sRad_pu_present)
 {
 	scoresText.setString("scores:" + to_string(scores));
 	livesText.setString("Lives: " + to_string(player_lives));
@@ -649,6 +587,8 @@ void display_powerups(RenderWindow &window, Text &scoresText, Text &livesText, i
 		window.draw(speed_sprite);
 	if (life_pu_present)
 		window.draw(life_sprite);
+	if (sRad_pu_present)
+		window.draw(sRad_sprite);
 }
 
 void display_pause(RenderWindow &window, Text &PauseT)
@@ -823,7 +763,7 @@ void player_gravity(char **lvl, float &offset_x, float &offset_y, float &velocit
 		char bottom_left_down = lvl[(int)(offset_y + Pheight) / cell_size][(int)(player_x) / cell_size];
 		char bottom_right_down = lvl[(int)(offset_y + Pheight) / cell_size][(int)((player_x) + Pwidth) / cell_size];
 		char bottom_mid_down = lvl[(int)(offset_y + Pheight) / cell_size][(int)((player_x) + Pwidth / 2) / cell_size];
-		if ((bottom_left_down == '#' || bottom_mid_down == '#' || bottom_right_down == '#') && !ignoring_tiles)
+		if (((bottom_left_down == '#' || bottom_mid_down == '#' || bottom_right_down == '#') && !ignoring_tiles) || (((bottom_left_down == '+' || bottom_mid_down == '+' || bottom_right_down == '+') && !ignoring_tiles)) || (((bottom_left_down == '-' || bottom_mid_down == '-' || bottom_right_down == '-') && !ignoring_tiles)))
 		{
 			onGround = true;
 		}
@@ -963,18 +903,6 @@ int main()
 	// left and right limits of ghosts
 	float ghost_left_x[total_ghosts];  //= {64, 64, 840, 840, 256, 192, 704, 704};
 	float ghost_right_x[total_ghosts]; // = {320, 320, 1090, 1090, 512, 448, 896, 960};
-	// creating ghost sprites
-	// // -----ghost images-----
-	// // x coordinates of ghosts
-	// float ghost_x[total_ghosts] = {128, 128, 800, 800, 256, 256, 704, 704};
-	// // y coordinates of ghosts
-	// float ghost_y[total_ghosts] = {512, 256, 256, 512, 128, 640, 128, 640};
-	// // speed of ghosts
-	// float ghost_speed[total_ghosts] = {2, 2, 2, 2, 2, 2, 2, 2};
-	// // left and right limits of ghosts
-	// float ghost_left_x[total_ghosts] = {64, 64, 840, 840, 256, 192, 704, 704};
-	// float ghost_right_x[total_ghosts] = {320, 320, 1090, 1090, 512, 448, 896, 960};
-	// // creating ghost sprites
 	Sprite ghost_sprite[total_ghosts];
 	for (int i = 0; i < total_ghosts; i++)
 	{
@@ -999,9 +927,6 @@ int main()
 	float skeleton_y[total_skeletons] = {120, 120, 370, 370};
 	float skeleton_gravity[total_skeletons] = {0, 0, 0, 0};
 	float skeleton_speed[total_skeletons] = {1.5, 1.5, 1.5, 1.5};
-	// left and right limits of skeletons
-	float skeleton_left_x[total_skeletons] = {210, 670, 210, 750};
-	float skeleton_right_x[total_skeletons] = {400, 926, 400, 926};
 	// creating skeleton sprites
 	Sprite skeleton_sprite[total_skeletons];
 	for (int i = 0; i < total_skeletons; i++)
@@ -1015,6 +940,29 @@ int main()
 	// kia wo mer gya he?
 	bool is_s_alive[total_skeletons] = {1, 1, 1, 1};
 	bool all_s_die = false;
+
+	// -----Chelnovsheet loading-----
+	Texture chelnovSheet;
+	chelnovSheet.loadFromFile("Data/Chelnov.png");
+	const int total_chelnov = 4;
+
+	// -----chelnov images-----
+	// x coordinates of chelnov
+	float chelnov_x[total_chelnov];
+	// y coordinates of chelnov
+	float chelnov_y[total_chelnov];
+	float chelnov_gravity[total_chelnov];
+	float chelnov_speed[total_chelnov];
+	// creating chelnov sprites
+	Sprite chelnov_sprite[total_chelnov];
+	for (int i = 0; i < total_chelnov; i++)
+	{
+		chelnov_sprite[i].setTexture(chelnovSheet);
+		chelnov_sprite[i].setTextureRect(IntRect(12, 6, 24, 36));
+		chelnov_sprite[i].setScale(2, 2);
+		chelnov_sprite[i].setPosition(chelnov_x[i], chelnov_y[i]);
+	}
+	bool is_chelnov_facing_right[total_chelnov] = {0, 0, 0, 0};
 
 	// -----The title image-----
 	Texture Title_Texture;
@@ -1097,6 +1045,18 @@ int main()
 	life_sprite.setPosition(life_x, life_y);
 	bool life_pu_present = true;
 
+	// ******************power up for suction radius
+	Sprite suctionRadius_sprite;
+	float s_radius_x = 70;
+	float s_radius_y = 506;
+
+	suctionRadius_sprite.setTexture(SpriteSheet);
+	suctionRadius_sprite.setTextureRect(IntRect(158, 382, 19, 28));
+	suctionRadius_sprite.setScale(2, 2);
+	suctionRadius_sprite.setPosition(s_radius_x, s_radius_y);
+	bool sRadius_pu_present = true;
+	bool inc_rad = false;
+
 	// ------Loading Green player------
 	Sprite p1_Sprite[8];
 	for (int i = 0; i < 8; i++)
@@ -1178,10 +1138,11 @@ int main()
 	int current_Window = TITLE;
 
 	// Suction
-	const int max_sucked_enemies = 3;
+	const int MAX_BAG_SIZE = 5;
+	int max_sucked_enemies = 3;
 	int suction_count = 0;
 	// store 1 and 2 for skeleton and ghosts respectively
-	int sucked_enemies[max_sucked_enemies] = {};
+	int sucked_enemies[MAX_BAG_SIZE] = {0, 0, 0, 0, 0};
 	int last_sucked;
 	// -----Music initialisation-----
 	Music Music;
@@ -1328,7 +1289,7 @@ int main()
 					// removing all enemies from the bag
 					else if (ev.key.code == Keyboard::Y && !pause)
 					{
-						for (int i = 0; i < 3; i++)
+						for (int i = 0; i < max_sucked_enemies; i++)
 						{
 							if (sucked_enemies[i] == 1)
 								scores += 75;
@@ -1353,19 +1314,9 @@ int main()
 				{
 					if (ev.key.code == Keyboard::BackSpace)
 						current_Window = MENU;
-					if (ev.key.code == Keyboard::Enter)
+					else if (ev.key.code == Keyboard::Enter)
 					{
-						level_no = 2;
-						new_level = true;
-						scores = 0;
-						player_lives = 3;
-						speed_pu_present = true;
-						life_pu_present = true;
-						player_x = 382;
-						player_y = 763;
-						speed = 5;
-						suction_count = 0;
-
+						setting_to_lvl2(level_no, new_level, scores, player_lives, speed_pu_present, life_pu_present, sRadius_pu_present, player_x, player_y, speed, suction_count, max_sucked_enemies, sucked_enemies, speed_x, speed_y, life_x, life_y, s_radius_x, s_radius_y, speed_sprite, life_sprite, suctionRadius_sprite);
 						current_Window = GAME;
 					}
 				}
@@ -1378,13 +1329,29 @@ int main()
 			// reset all variables and arrays
 			level_no = 1;
 			new_level = true;
-			reset_game(fire_x, fire_y, ghost_y, ghost_x, skeleton_x, skeleton_y, ghost_speed, is_g_alive, ghost_sprite, skeleton_gravity, skeleton_speed, is_skeleton_facing_right, is_s_alive, skeleton_sprite, scores, player_lives, speed_pu_present, life_pu_present, p_frame_index, p_animation_timer, player_x, player_y, onGround, offset_x, offset_y, velocityY, reach_last_ground, ignoring_tiles, is_player_facing_right, onGroundNow, down_key, hit, pause, suction_count, total_ghosts, total_skeletons, speed, level_no, new_level, ghost_right_x, ghost_left_x, sucked_enemies);
+			reset_to_lvl1(fire_x, fire_y, ghost_y, ghost_x, skeleton_x, skeleton_y, ghost_speed, is_g_alive, ghost_sprite, skeleton_gravity, skeleton_speed, is_skeleton_facing_right, is_s_alive, skeleton_sprite, scores, player_lives, speed_pu_present, life_pu_present, p_frame_index, p_animation_timer, player_x, player_y, onGround, offset_x, offset_y, velocityY, reach_last_ground, ignoring_tiles, is_player_facing_right, onGroundNow, down_key, hit, pause, suction_count, total_ghosts, total_skeletons, speed, level_no, new_level, ghost_right_x, ghost_left_x, sucked_enemies, sRadius_pu_present, max_sucked_enemies);
 			current_Window = GAME;
 		}
 		else if (current_Window == GAME)
 		{
 			if (player_lives < 1)
 				current_Window = LOOSE;
+			// player collision with power ups
+			if (isColliding(player_x, player_y, PlayerWidth, PlayerHeight, speed_x, speed_y, 30, 30) && speed_pu_present)
+			{
+				speed *= 2;
+				speed_pu_present = false;
+			}
+			if (isColliding(player_x, player_y, PlayerWidth, PlayerHeight, life_x, life_y, 30, 30) && life_pu_present)
+			{
+				player_lives++;
+				life_pu_present = false;
+			}
+			if (isColliding(player_x, player_y, PlayerWidth, PlayerHeight, s_radius_x, s_radius_y, 30, 30) && sRadius_pu_present)
+			{
+				inc_rad = true;
+				sRadius_pu_present = false;
+			}
 			// -----Movement of the player-----
 			// pause
 			if (!pause)
@@ -1430,6 +1397,8 @@ int main()
 				if (Keyboard::isKeyPressed(Keyboard::Space))
 				{
 					float new_f_width = (player_Green) ? FireWidth : FireWidth * 1.2;
+					new_f_width = (inc_rad) ? new_f_width + 20 : new_f_width;
+					// increasing width of fire
 					float new_f_height = (player_Green) ? FireHeight : FireHeight * 1.2;
 					fire_y = player_y + ((player_Green) ? 15 : 10);
 					// Use this for collision only, why this so lemme explain
@@ -1515,19 +1484,6 @@ int main()
 			}
 			// pause finish
 
-			// player collision with power ups
-			if (isColliding(player_x, player_y, PlayerWidth, PlayerHeight, speed_x, speed_y, 30, 30) && speed_pu_present)
-			{
-				speed *= 2;
-				speed_pu_present = false;
-				speed_sprite.setPosition(speed_x, speed_y);
-			}
-			if (isColliding(player_x, player_y, PlayerWidth, PlayerHeight, life_x, life_y, 30, 30) && life_pu_present)
-			{
-				player_lives++;
-				life_pu_present = false;
-				life_sprite.setPosition(life_x, life_y);
-			}
 			for (int i = 0; i < total_ghosts; i++)
 			{
 				// ghost_move(ghost_x[i],ghost_speed[i],ghost_y[i],ghost_sprite[i],ghost_left_x,ghost_right_x);
@@ -1585,7 +1541,7 @@ int main()
 		}
 		else if (current_Window == CONTROL)
 		{
-			display_controls(window, controls_Sprite, BackspaceText);
+			display_controls(window, controls_Sprite, BackspaceText, PauseText);
 		}
 		else if (current_Window == GAME)
 		{
@@ -1600,19 +1556,27 @@ int main()
 			display_player(window, player_Green, is_player_facing_right, GreenplayerFrame, YellowplayerFrame, p_frame_index, player_x, player_y, PlayerWidth, onGroundNow, p1_Sprite[6], p2_Sprite[6], down_key, p1_Sprite[7], p2_Sprite[7]);
 			display_health_image(window, p1_Sprite[5], p2_Sprite[5], player_Green);
 			display_enemies(window, skeleton_sprite, total_skeletons, ghost_sprite, total_ghosts, is_s_alive, is_g_alive);
-			display_powerups(window, scoresText, livesText, scores, player_lives, speed_pu_present, life_pu_present, speed_sprite, life_sprite);
+			display_powerups(window, scoresText, livesText, scores, player_lives, speed_pu_present, life_pu_present, speed_sprite, life_sprite, suctionRadius_sprite, sRadius_pu_present);
+			// showing bag
 			for (int i = 0; i < max_sucked_enemies; i++)
 			{
-				for (int j = 0; j < 3; j++)
+				for (int j = 0; j < max_sucked_enemies; j++)
 				{
 					if (sucked_enemies[j] == 1)
 					{
 						sletter.setString("S");
 						sletter.setCharacterSize(70);
 						sletter.setFillColor(Color::Red);
-						if (j == 0) sletter.setPosition(450, 10);
-						else if (j == 1) sletter.setPosition(550, 10);
-						else if (j == 2) sletter.setPosition(650, 10);
+						if (j == 0)
+							sletter.setPosition(450, 10);
+						else if (j == 1)
+							sletter.setPosition(550, 10);
+						else if (j == 2)
+							sletter.setPosition(650, 10);
+						else if (j == 3)
+							sletter.setPosition(750, 10);
+						else if (j == 4)
+							sletter.setPosition(850, 10);
 						window.draw(sletter);
 					}
 					else if (sucked_enemies[j] == 2)
@@ -1620,23 +1584,39 @@ int main()
 						gletter.setString("G");
 						gletter.setCharacterSize(70);
 						gletter.setFillColor(Color::Red);
-						if (j == 0) gletter.setPosition(450, 10);
-						else if (j == 1) gletter.setPosition(550, 10);
-						else if (j == 2) gletter.setPosition(650, 10);
+						if (j == 0)
+							gletter.setPosition(450, 10);
+						else if (j == 1)
+							gletter.setPosition(550, 10);
+						else if (j == 2)
+							gletter.setPosition(650, 10);
+						else if (j == 3)
+							gletter.setPosition(750, 10);
+						else if (j == 4)
+							gletter.setPosition(850, 10);
 						window.draw(gletter);
 					}
-					else 
+					else
 					{
 						_0letter.setString("0");
 						_0letter.setCharacterSize(70);
 						_0letter.setFillColor(Color::Red);
-						if (j == 0) _0letter.setPosition(450, 10);
-						else if (j == 1) _0letter.setPosition(550, 10);
-						else if (j == 2) _0letter.setPosition(650, 10);
+						if (j == 0)
+							_0letter.setPosition(450, 10);
+						else if (j == 1)
+							_0letter.setPosition(550, 10);
+						else if (j == 2)
+							_0letter.setPosition(650, 10);
+						else if (j == 3)
+							_0letter.setPosition(750, 10);
+						else if (j == 4)
+							_0letter.setPosition(850, 10);
 						window.draw(_0letter);
 					}
 				}
 			}
+			// if (level_no == 2)
+			// 	display
 		}
 		else if (current_Window == LOOSE)
 		{
