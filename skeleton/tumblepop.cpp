@@ -284,8 +284,8 @@ void load_level(int level_no, Texture &bgTex, Sprite &bgSprite, char **lvl, cons
 		skeleton_x[3] = 900;
 
 		skeleton_y[0] = 120;
-		skeleton_y[1] = 120;
-		skeleton_y[2] = 370;
+		skeleton_y[1] = 768;
+		skeleton_y[2] = 768;
 		skeleton_y[3] = 370;
 
 		for (int i = 0; i < 4; i++)
