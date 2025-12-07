@@ -16,43 +16,23 @@ void reset_to_lvl1(float &fire_x, float &fire_y, float ghost_y[], float ghost_x[
 {
 	fire_x = 0;
 	fire_y = 0;
-	if (level_no == 1)
+	ghost_x[0] = 128, ghost_x[1] = 128, ghost_x[2] = 800, ghost_x[3] = 800, ghost_x[4] = 256, ghost_x[5] = 256, ghost_x[6] = 704, ghost_x[7] = 704;
+	ghost_y[0] = 512, ghost_y[1] = 256, ghost_y[2] = 256, ghost_y[3] = 512, ghost_y[4] = 128, ghost_y[5] = 640, ghost_y[6] = 128, ghost_y[7] = 640;
+	skeleton_x[0] = 200, skeleton_x[1] = 800, skeleton_x[2] = 150, skeleton_x[3] = 900;
+	skeleton_y[0] = 120, skeleton_y[1] = 120, skeleton_y[2] = 370, skeleton_y[3] = 370;
+	for (int i = 0; i < total_ghosts; i++)
 	{
-		ghost_x[0] = 128, ghost_x[1] = 128, ghost_x[2] = 800, ghost_x[3] = 800, ghost_x[4] = 256, ghost_x[5] = 256, ghost_x[6] = 704, ghost_x[7] = 704;
-		ghost_y[0] = 512, ghost_y[1] = 256, ghost_y[2] = 256, ghost_y[3] = 512, ghost_y[4] = 128, ghost_y[5] = 640, ghost_y[6] = 128, ghost_y[7] = 640;
-		skeleton_x[0] = 200, skeleton_x[1] = 800, skeleton_x[2] = 150, skeleton_x[3] = 900;
-		skeleton_y[0] = 120, skeleton_y[1] = 120, skeleton_y[2] = 370, skeleton_y[3] = 370;
-		for (int i = 0; i < 8; i++)
-		{
-			ghost_speed[i] = 2;
-			is_g_alive[i] = 1;
-			ghost_sprite[i].setScale(-2, 2);
-		}
-		for (int i = 0; i < 4; i++)
-		{
-			skeleton_gravity[i] = 0;
-			skeleton_speed[i] = 1.5;
-			is_skeleton_facing_right[i] = 0;
-			is_s_alive[i] = 1;
-			skeleton_sprite[i].setScale(2, 2);
-		}
+		ghost_speed[i] = 2;
+		is_g_alive[i] = 1;
+		ghost_sprite[i].setScale(-2, 2);
 	}
-	else
+	for (int i = 0; i < total_skeletons; i++)
 	{
-		for (int i = 0; i < 4; i++)
-		{
-			ghost_speed[i] = 2;
-			is_g_alive[i] = 1;
-			ghost_sprite[i].setScale(-2, 2);
-		}
-		for (int i = 0; i < 9; i++)
-		{
-			skeleton_gravity[i] = 0;
-			skeleton_speed[i] = 1.5;
-			is_skeleton_facing_right[i] = 0;
-			is_s_alive[i] = 1;
-			skeleton_sprite[i].setScale(2, 2);
-		}
+		skeleton_gravity[i] = 0;
+		skeleton_speed[i] = 1.5;
+		is_skeleton_facing_right[i] = 0;
+		is_s_alive[i] = 1;
+		skeleton_sprite[i].setScale(2, 2);
 	}
 	scores = 0;
 	player_lives = 3;
@@ -200,7 +180,8 @@ void setting_blocks_lvl2(char **lvl, int height, int width)
 	}
 }
 
-void load_level(int level_no, Texture &bgTex, Sprite &bgSprite, char **lvl, const int height, const int width, const int &total_ghosts, float ghost_x[], float ghost_y[], float ghost_speed[], float ghost_left_x[], float ghost_right_x[], bool is_g_alive[])
+// void load_level(int level_no, Texture &bgTex, Sprite &bgSprite, char **lvl, const int height, const int width, const int &total_ghosts, float ghost_x[], float ghost_y[], float ghost_speed[], float ghost_left_x[], float ghost_right_x[], bool is_g_alive[])
+void load_level(int level_no, Texture &bgTex, Sprite &bgSprite, char **lvl, const int height, const int width, const int &total_ghosts, float ghost_x[], float ghost_y[], float ghost_speed[], float ghost_left_x[], float ghost_right_x[], bool is_g_alive[], const int &total_skeletons, float skeleton_x[], float skeleton_y[], float skeleton_speed[], float skeleton_gravity[], bool is_s_alive[])
 {
 	// -----storing '.' in the lvl array-----
 	for (int i = 0; i < height; i++)
@@ -296,6 +277,29 @@ void load_level(int level_no, Texture &bgTex, Sprite &bgSprite, char **lvl, cons
 		for (int i = 0; i < 4; i++)
 		{
 			is_g_alive[i] = 1;
+		}
+		skeleton_x[0] = 200;
+		skeleton_x[1] = 800;
+		skeleton_x[2] = 150;
+		skeleton_x[3] = 900;
+
+		skeleton_y[0] = 120;
+		skeleton_y[1] = 120;
+		skeleton_y[2] = 370;
+		skeleton_y[3] = 370;
+
+		for (int i = 0; i < 4; i++)
+		{
+			skeleton_gravity[i] = 0;
+		}
+
+		for (int i = 0; i < 4; i++)
+		{
+			skeleton_speed[i] = 1.5;
+		}
+		for (int i = 0; i < 4; i++)
+		{
+			is_s_alive[i] = true;
 		}
 	}
 }
@@ -475,6 +479,22 @@ void display_player(RenderWindow &window, bool player_Green, bool is_player_faci
 			window.draw(p2_d_sprite);
 		}
 		down_key = false;
+	}
+}
+
+void display_chelnov(RenderWindow &window, Sprite chelnov_sprite[], int total_c)
+{
+	for (int i = 0; i < total_c; i++)
+	{
+		if (i == 0)
+			chelnov_sprite[i].setPosition(64, 440);
+		if (i == 1)
+			chelnov_sprite[i].setPosition(64, 440);
+		if (i == 2)
+			chelnov_sprite[i].setPosition(720, 256);
+		if (i == 3)
+			chelnov_sprite[i].setPosition(720, 512);
+		window.draw(chelnov_sprite[i]);
 	}
 }
 
@@ -960,9 +980,7 @@ int main()
 		chelnov_sprite[i].setTexture(chelnovSheet);
 		chelnov_sprite[i].setTextureRect(IntRect(12, 6, 24, 36));
 		chelnov_sprite[i].setScale(2, 2);
-		chelnov_sprite[i].setPosition(chelnov_x[i], chelnov_y[i]);
 	}
-	bool is_chelnov_facing_right[total_chelnov] = {0, 0, 0, 0};
 
 	// -----The title image-----
 	Texture Title_Texture;
@@ -1199,7 +1217,7 @@ int main()
 		// load level
 		if (new_level)
 		{
-			load_level(level_no, bgTex, bgSprite, lvl, height, width, total_ghosts, ghost_x, ghost_y, ghost_speed, ghost_left_x, ghost_right_x, is_g_alive);
+			load_level(level_no, bgTex, bgSprite, lvl, height, width, total_ghosts, ghost_x, ghost_y, ghost_speed, ghost_left_x, ghost_right_x, is_g_alive, total_skeletons, skeleton_x, skeleton_y, skeleton_speed, skeleton_gravity, is_s_alive);
 			new_level = false;
 		}
 		// Whenever we press a key, click the mouse, or resize the window, the OS drops an Event into the part of game window. That part can hold many letters at a time.
@@ -1615,8 +1633,8 @@ int main()
 					}
 				}
 			}
-			// if (level_no == 2)
-			// 	display
+			if (level_no == 2)
+				display_chelnov(window, chelnov_sprite, total_chelnov);
 		}
 		else if (current_Window == LOOSE)
 		{
