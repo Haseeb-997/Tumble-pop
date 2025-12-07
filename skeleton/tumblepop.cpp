@@ -888,7 +888,7 @@ int main()
 
 	// -----Spritesheet loading-----
 	Texture SpriteSheet;
-	SpriteSheet.loadFromFile("../Assets/Sprites.png");
+	SpriteSheet.loadFromFile("Data/Sprites.png");
 
 	// -----Player selection image-----
 	Sprite g_Select_Sprite;
